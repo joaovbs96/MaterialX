@@ -11,6 +11,8 @@
 
 #include <iostream>
 
+#include <unordered_set>
+
 #include <MaterialXCore/Unit.h>
 
 #include <MaterialXRender/Export.h>
@@ -218,13 +220,13 @@ class TextureBaker : public Renderer
     void optimizeBakedTextures(NodePtr shader);
 
     /// Bake material to document in memory and write baked textures to disk.
-    DocumentPtr bakeMaterialToDoc(DocumentPtr doc, const FileSearchPath& searchPath, const string& materialPath, 
+    DocumentPtr bakeMaterialToDoc(DocumentPtr doc, const FileSearchPath& searchPath, const string& materialPath,
                                   const StringVec& udimSet, std::string& documentName);
 
     /// Bake materials in the given document and write them to disk.  If multiple documents are written,
     /// then the given output filename will be used as a template.
     void bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searchPath, const FilePath& outputFileName);
-    
+
     /// Set whether to write a separate document per material when calling bakeAllMaterials.
     /// By default separate documents are written.
     void writeDocumentPerMaterial(bool value)
@@ -233,6 +235,9 @@ class TextureBaker : public Renderer
     }
 
     string getValueStringFromColor(const Color4& color, const string& type);
+
+    /// Utility function to find all nodes of a certain node group used in a shading network through an upstream traversal.
+    std::unordered_set<NodePtr> getNodesByNodeGroup(DocumentPtr doc, const string& nodeGroup);
 
   protected:
     class BakedImage
@@ -295,7 +300,7 @@ class TextureBaker : public Renderer
     StringMap _bakedInputMap;
 
     std::unordered_map<string, NodePtr> _worldSpaceNodes;
-    
+
     bool _flipSavedImage;
 
     bool _writeDocumentPerMaterial;

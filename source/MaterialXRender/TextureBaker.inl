@@ -629,6 +629,39 @@ void TextureBaker<Renderer, ShaderGen>::bakeAllMaterials(DocumentPtr doc, const 
 }
 
 template<typename Renderer, typename ShaderGen>
+std::unordered_set<NodePtr> TextureBaker<Renderer, ShaderGen>::getNodesByNodeGroup(DocumentPtr doc, const string& nodeGroup) {
+    std::unordered_set<NodePtr> foundNodes;
+
+    if (doc)
+    {
+        for (auto materialNode : doc->getMaterialNodes())
+        {
+            for (Edge edge : materialNode->traverseGraph())
+            {
+                ElementPtr upElem = edge.getUpstreamElement();
+                if (upElem)
+                {
+                    NodePtr node = upElem->asA<Node>();
+                    if (node)
+                    {
+                        NodeDefPtr nodeDef = node->getNodeDef();
+                        if (nodeDef)
+                        {
+                            if (nodeDef->getNodeGroup() == nodeGroup)
+                            {
+                                foundNodes.insert(node);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return foundNodes;
+}
+
+template<typename Renderer, typename ShaderGen>
 void TextureBaker<Renderer, ShaderGen>::setupUnitSystem(DocumentPtr unitDefinitions)
 {
     UnitTypeDefPtr distanceTypeDef = unitDefinitions ? unitDefinitions->getUnitTypeDef("distance") : nullptr;
